@@ -15,6 +15,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            background: #090f16;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #090f16;
@@ -29,6 +33,12 @@
                               radial-gradient(circle at 50% 50%, rgba(124, 92, 252, 0.08), transparent 34%);
             background-attachment: fixed;
             overflow-x: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        body.ready {
+            opacity: 1;
         }
 
         body::before {
@@ -42,10 +52,15 @@
             background-position: center center, center center, center center;
             transform: perspective(1800px) rotateX(8deg) rotateZ(-2deg);
             transform-origin: center;
-            opacity: 0.78;
+            opacity: 0;
             filter: blur(0.2px) drop-shadow(0 0 10px rgba(84, 212, 196, 0.35));
             pointer-events: none;
             mask-image: linear-gradient(to bottom, rgba(0,0,0,1), transparent 100%);
+            transition: opacity 0.3s ease;
+        }
+
+        body.ready::before {
+            opacity: 0.78;
             animation: driftGrid 12s ease-in-out infinite alternate;
         }
 
@@ -57,10 +72,15 @@
                               radial-gradient(rgba(84, 212, 196, 0.60) 1px, transparent 1px);
             background-size: 34px 34px, 57px 57px;
             background-position: 0 0, 17px 17px;
-            opacity: 0.18;
+            opacity: 0;
             filter: blur(1px);
             mask-image: linear-gradient(to bottom, rgba(0,0,0,1), transparent 100%);
             pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.ready::after {
+            opacity: 0.18;
         }
 
         @keyframes driftGrid {
@@ -936,6 +956,12 @@
 
     // Установка языка по умолчанию
     setLanguage('ru');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        requestAnimationFrame(() => {
+            document.body.classList.add('ready');
+        });
+    });
 </script>
 </body>
 </html>
