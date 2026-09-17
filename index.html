@@ -91,6 +91,23 @@
             opacity: 0.18;
         }
 
+        body.reduced-motion::before,
+        body.reduced-motion::after {
+            animation: none !important;
+            opacity: 0.22;
+        }
+
+        body.reduced-motion .fade-in,
+        body.reduced-motion .counter-users a,
+        body.reduced-motion .skill-item,
+        body.reduced-motion .game-item,
+        body.reduced-motion .project-item,
+        body.reduced-motion .contact-link,
+        body.reduced-motion .lang-toggle button {
+            animation: none !important;
+            transition: none !important;
+        }
+
         @keyframes driftGrid {
             from {
                 transform: perspective(1800px) rotateX(8deg) rotateZ(-2deg) translateY(-4px);
@@ -969,6 +986,24 @@
     }
     updateTime();
     setInterval(updateTime, 60000);
+
+    const mobileMedia = window.matchMedia('(max-width: 768px), (pointer: coarse), (hover: none)');
+    const reducedMotionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function updateMotionMode() {
+        const shouldReduceMotion = mobileMedia.matches || reducedMotionMedia.matches;
+        document.body.classList.toggle('reduced-motion', shouldReduceMotion);
+    }
+
+    if (typeof mobileMedia.addEventListener === 'function') {
+        mobileMedia.addEventListener('change', updateMotionMode);
+        reducedMotionMedia.addEventListener('change', updateMotionMode);
+    } else if (typeof mobileMedia.addListener === 'function') {
+        mobileMedia.addListener(updateMotionMode);
+        reducedMotionMedia.addListener(updateMotionMode);
+    }
+
+    updateMotionMode();
 
     // Установка языка по умолчанию
     setLanguage('ru');
