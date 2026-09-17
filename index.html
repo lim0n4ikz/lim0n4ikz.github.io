@@ -45,75 +45,55 @@
             opacity: 1;
         }
 
-        body::before {
-            content: "";
+        .moving-network {
             position: fixed;
             inset: -80px;
-            background-image: linear-gradient(rgba(118, 182, 255, 0.055) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(84, 212, 196, 0.045) 1px, transparent 1px),
-                              radial-gradient(rgba(118, 182, 255, 0.74) 1px, transparent 1px);
-            background-size: 42px 42px, 42px 42px, 80px 80px;
-            background-position: center center, center center, center center;
-            transform: perspective(1800px) rotateX(8deg) rotateZ(-2deg) translateZ(0);
+            width: calc(100% + 160px);
+            height: calc(100% + 160px);
+            background-image:
+                radial-gradient(circle at 0 0, #bce8ff 2px, transparent 2px),
+                repeating-linear-gradient(rgba(120, 180, 255, 0.12) 0 1px, transparent 1px 40px),
+                repeating-linear-gradient(90deg, rgba(120, 180, 255, 0.12) 0 1px, transparent 1px 40px);
+            background-size: 40px 40px, 40px 40px, 40px 40px;
+            background-position: 0 0, 0 0, 0 0;
+            background-repeat: repeat;
+            transform: perspective(1200px) rotateX(3deg) translateZ(0);
             transform-origin: center;
-            opacity: 0;
-            filter: blur(0.2px) drop-shadow(0 0 10px rgba(84, 212, 196, 0.35));
+            opacity: 0.62;
             pointer-events: none;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,1), transparent 100%);
-            transition: opacity 0.3s ease;
+            animation: networkFlow 12s linear infinite alternate;
+            z-index: 0;
             will-change: transform, opacity;
             contain: paint;
         }
 
-        body.ready::before {
-            opacity: 0.78;
-            animation: driftGrid 12s ease-in-out infinite alternate;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image: radial-gradient(rgba(118, 182, 255, 0.60) 1px, transparent 1px),
-                              radial-gradient(rgba(84, 212, 196, 0.60) 1px, transparent 1px);
-            background-size: 34px 34px, 57px 57px;
-            background-position: 0 0, 17px 17px;
-            opacity: 0;
-            filter: blur(1px);
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,1), transparent 100%);
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            will-change: transform, opacity;
-            contain: paint;
-        }
-
-        body.ready::after {
-            opacity: 0.18;
-        }
-
-        body.reduced-motion::before,
-        body.reduced-motion::after {
+        body.reduced-motion .moving-network {
             animation: none !important;
-            opacity: 0.22;
+            opacity: 0.32;
         }
 
-        body.reduced-motion .fade-in,
-        body.reduced-motion .counter-users a,
-        body.reduced-motion .skill-item,
-        body.reduced-motion .game-item,
-        body.reduced-motion .project-item,
-        body.reduced-motion .contact-link,
-        body.reduced-motion .lang-toggle button {
+        body.scrolling .moving-network {
             animation: none !important;
-            transition: none !important;
+            opacity: 0.62;
         }
 
-        @keyframes driftGrid {
+        body.scrolling,
+        body.reduced-motion {
+            overflow-x: hidden;
+        }
+
+        body.reduced-motion .fade-in {
+            opacity: 1 !important;
+            transform: none !important;
+            animation: none !important;
+        }
+
+        @keyframes networkFlow {
             from {
-                transform: perspective(1800px) rotateX(8deg) rotateZ(-2deg) translateY(-4px);
+                transform: perspective(1200px) rotateX(3deg) translate3d(0, 0, 0);
             }
             to {
-                transform: perspective(1800px) rotateX(8deg) rotateZ(2deg) translateY(8px);
+                transform: perspective(1200px) rotateX(3deg) translate3d(40px, 40px, 0);
             }
         }
         .counter-users a {
@@ -132,6 +112,7 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
             transition: all 0.3s ease;
             position: relative;
+            z-index: 1;
             overflow: hidden;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
@@ -691,6 +672,7 @@
     </style>
 </head>
 <body>
+<div class="moving-network" aria-hidden="true"></div>
 
 <div class="card">
 
@@ -791,7 +773,10 @@
     </div>
     <div class="projects-grid fade-in delay-6">
         <a href="https://lim0n4ikz.github.io/flashcards-app/" target="_blank" rel="noopener noreferrer" class="project-item">
-            <div class="project-name">Мой английский · Flashcards</div>
+            <div class="project-name">
+                <span class="lang-ru active">Мой английский · Flashcards</span>
+                <span class="lang-en">My English · Flashcards</span>
+            </div>
             <div class="project-desc lang-ru active">
                 Мобильное приложение для изучения английских слов с помощью профилей, групп, карточек и интервального повторения.<br>
                 Создавайте собственные словари, отслеживайте прогресс и храните данные локально на устройстве.
@@ -989,10 +974,34 @@
 
     const mobileMedia = window.matchMedia('(max-width: 768px), (pointer: coarse), (hover: none)');
     const reducedMotionMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let scrollPauseTimer = null;
+
+    function setReducedMotion(flag) {
+        document.body.classList.toggle('reduced-motion', flag);
+    }
+
+    function setScrollState(isScrolling) {
+        document.body.classList.toggle('scrolling', isScrolling);
+    }
 
     function updateMotionMode() {
         const shouldReduceMotion = mobileMedia.matches || reducedMotionMedia.matches;
-        document.body.classList.toggle('reduced-motion', shouldReduceMotion);
+        setReducedMotion(shouldReduceMotion);
+    }
+
+    function handleScroll() {
+        if (mobileMedia.matches || reducedMotionMedia.matches) {
+            setScrollState(true);
+            return;
+        }
+
+        clearTimeout(scrollPauseTimer);
+        setScrollState(true);
+
+        scrollPauseTimer = setTimeout(() => {
+            scrollPauseTimer = null;
+            setScrollState(false);
+        }, 320);
     }
 
     if (typeof mobileMedia.addEventListener === 'function') {
@@ -1004,6 +1013,7 @@
     }
 
     updateMotionMode();
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Установка языка по умолчанию
     setLanguage('ru');
