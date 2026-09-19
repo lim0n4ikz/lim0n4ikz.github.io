@@ -47,9 +47,9 @@
 
         .moving-network {
             position: fixed;
-            inset: -80px;
-            width: calc(100% + 160px);
-            height: calc(100% + 160px);
+            inset: -20%;
+            width: 140%;
+            height: 140%;
             background-image:
                 radial-gradient(circle at 0 0, #bce8ff 2px, transparent 2px),
                 repeating-linear-gradient(rgba(120, 180, 255, 0.12) 0 1px, transparent 1px 40px),
@@ -61,7 +61,7 @@
             transform-origin: center;
             opacity: 0.62;
             pointer-events: none;
-            animation: networkFlow 12s linear infinite alternate;
+            animation: networkFlow 6s linear infinite alternate;
             z-index: 0;
             will-change: transform, opacity;
             contain: paint;
@@ -73,7 +73,6 @@
         }
 
         body.scrolling .moving-network {
-            animation: none !important;
             opacity: 0.62;
         }
 
@@ -90,10 +89,19 @@
 
         @keyframes networkFlow {
             from {
-                transform: perspective(1200px) rotateX(3deg) translate3d(0, 0, 0);
+                transform: perspective(1200px) rotateX(10deg) translate3d(0, 0, 0);
+            }
+            25% {
+                transform: perspective(1200px) rotateX(10deg) translate3d(8px, -18px, 0);
+            }
+            50% {
+                transform: perspective(1200px) rotateX(10deg) translate3d(24px, -4px, 0);
+            }
+            75% {
+                transform: perspective(1200px) rotateX(10deg) translate3d(36px, 20px, 0);
             }
             to {
-                transform: perspective(1200px) rotateX(3deg) translate3d(40px, 40px, 0);
+                transform: perspective(1200px) rotateX(10deg) translate3d(40px, 40px, 0);
             }
         }
         .counter-users a {
